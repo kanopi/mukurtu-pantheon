@@ -1094,6 +1094,11 @@ function drupal_http_request($url, array $options = array()) {
       elseif ($options['max_redirects']) {
         // Redirect to the new location.
         $options['max_redirects']--;
+
+        // We need to unset the 'Host' header
+        // as we are redirecting to a new location.
+        unset($options['headers']['Host']);
+
         $result = drupal_http_request($location, $options);
         $result->redirect_code = $code;
       }
@@ -3661,7 +3666,7 @@ function drupal_build_css_cache($css) {
     $uri = $map[$key];
   }
 
-  if (empty($uri) || !file_exists($uri)) {
+  if (empty($uri) || !drupal_aggregated_file_exists($uri)) {
     // Build aggregate CSS file.
     foreach ($css as $stylesheet) {
       // Only 'file' stylesheets can be aggregated.
@@ -5064,6 +5069,19 @@ function drupal_add_tabledrag($table_id, $action, $relationship, $group, $subgro
   drupal_add_js($settings, 'setting');
 }
 
+function drupal_aggregated_file_exists($uri) {
+  if (function_exists('apc_exists')) {
+    $exists = apc_exists('file_exists_' . $uri);
+    if (!$exists && file_exists($uri)) {
+      $exists = TRUE;
+      apc_store('file_exists_' . $uri, TRUE, 86400);
+    }
+    return $exists;
+  }
+  // If no APC available, fall back to default.
+  return file_exists($uri);
+}
+
 /**
  * Aggregates JavaScript files into a cache file in the files directory.
  *
@@ -5103,7 +5121,7 @@ function drupal_build_js_cache($files) {
     $uri = $map[$key];
   }
 
-  if (empty($uri) || !file_exists($uri)) {
+  if (empty($uri) || !drupal_aggregated_file_exists($uri)) {
     // Build aggregate JS file.
     foreach ($files as $path => $info) {
       if ($info['preprocess']) {
@@ -5111,6 +5129,10 @@ function drupal_build_js_cache($files) {
         $contents .= file_get_contents($path) . ";\n";
       }
     }
+
+    // Allow modules to act on the js_cache before writing to disk.
+    drupal_alter('js_cache', $contents);
+
     // Prefix filename to prevent blocking by firewalls which reject files
     // starting with "ad*".
     $filename = 'js_' . drupal_hash_base64($contents) . '.js';
@@ -7651,7 +7673,7 @@ function drupal_implode_tags($tags) {
 
     $encoded_tags[] = $tag;
   }
-  return implode('; ', $encoded_tags);
+  return implode(', ', $encoded_tags);
 }
 
 /**

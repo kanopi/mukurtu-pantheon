@@ -305,7 +305,7 @@ $drupal_hash_salt = '';
  *
  * To see what PHP settings are possible, including whether they can be set at
  * runtime (by using ini_set()), read the PHP documentation:
- * http://www.php.net/manual/ini.list.php
+ * http://www.php.net/manual/en/ini.list.php
  * See drupal_environment_initialize() in includes/bootstrap.inc for required
  * runtime settings and the .htaccess file for non-runtime settings. Settings
  * defined there should not be duplicated here so as to avoid conflict issues.
@@ -341,7 +341,7 @@ ini_set('session.cookie_lifetime', 2000000);
  * output filter may not have sufficient memory to process it.  If you
  * experience this issue, you may wish to uncomment the following two lines
  * and increase the limits of these variables.  For more information, see
- * http://php.net/manual/pcre.configuration.php.
+ * http://php.net/manual/en/pcre.configuration.php.
  */
 # ini_set('pcre.backtrack_limit', 200000);
 # ini_set('pcre.recursion_limit', 200000);
@@ -479,6 +479,23 @@ ini_set('session.cookie_lifetime', 2000000);
 # $conf['block_cache_bypass_node_grants'] = TRUE;
 
 /**
+ * Expiration of cache_form entries:
+ *
+ * Drupal's Form API stores details of forms in cache_form and these entries are
+ * kept for at least 6 hours by default. Expired entries are cleared by cron.
+ * Busy sites can encounter problems with the cache_form table becoming very
+ * large. It's possible to mitigate this by setting a shorter expiration for
+ * cached forms. In some cases it may be desirable to set a longer cache
+ * expiration, for example to prolong cache_form entries for Ajax forms in
+ * cached HTML.
+ *
+ * @see form_set_cache()
+ * @see system_cron()
+ * @see ajax_get_form()
+ */
+# $conf['form_cache_expiration'] = 21600;
+
+/**
  * String overrides:
  *
  * To override specific strings on your site with or without enabling the Locale
@@ -600,35 +617,6 @@ $conf['404_fast_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN"
 # $conf['allow_authorize_operations'] = FALSE;
 
 /**
- * Theme debugging:
- *
- * When debugging is enabled:
- * - The markup of each template is surrounded by HTML comments that contain
- *   theming information, such as template file name suggestions.
- * - Note that this debugging markup will cause automated tests that directly
- *   check rendered HTML to fail.
- *
- * For more information about debugging theme templates, see
- * https://www.drupal.org/node/223440#theme-debug.
- *
- * Not recommended in production environments.
- *
- * Remove the leading hash sign to enable.
- */
-# $conf['theme_debug'] = TRUE;
-
-/**
- * CSS identifier double underscores allowance:
- *
- * To allow CSS identifiers to contain double underscores (.example__selector)
- * for Drupal's BEM-style naming standards, uncomment the line below.
- * Note that if you change this value in existing sites, existing page styles
- * may be broken.
- *
- * @see drupal_clean_css_identifier()
- */
-# $conf['allow_css_double_underscores'] = TRUE;
-/**
  * Smart start:
  *
  * If you would prefer to be redirected to the installation system when a
@@ -666,3 +654,17 @@ $conf['404_fast_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN"
  * @see drupal_clean_css_identifier()
  */
 # $conf['allow_css_double_underscores'] = TRUE;
+
+/**
+ * The default list of directories that will be ignored by Drupal's file API.
+ *
+ * By default ignore node_modules and bower_components folders to avoid issues
+ * with common frontend tools and recursive scanning of directories looking for
+ * extensions.
+ *
+ * @see file_scan_directory()
+ */
+$conf['file_scan_ignore_directories'] = array(
+  'node_modules',
+  'bower_components',
+);
