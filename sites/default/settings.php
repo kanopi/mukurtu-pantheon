@@ -305,7 +305,7 @@ $drupal_hash_salt = '';
  *
  * To see what PHP settings are possible, including whether they can be set at
  * runtime (by using ini_set()), read the PHP documentation:
- * http://www.php.net/manual/ini.list.php
+ * http://www.php.net/manual/en/ini.list.php
  * See drupal_environment_initialize() in includes/bootstrap.inc for required
  * runtime settings and the .htaccess file for non-runtime settings. Settings
  * defined there should not be duplicated here so as to avoid conflict issues.
@@ -341,7 +341,7 @@ ini_set('session.cookie_lifetime', 2000000);
  * output filter may not have sufficient memory to process it.  If you
  * experience this issue, you may wish to uncomment the following two lines
  * and increase the limits of these variables.  For more information, see
- * http://php.net/manual/pcre.configuration.php.
+ * http://php.net/manual/en/pcre.configuration.php.
  */
 # ini_set('pcre.backtrack_limit', 200000);
 # ini_set('pcre.recursion_limit', 200000);
@@ -600,35 +600,6 @@ $conf['404_fast_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN"
 # $conf['allow_authorize_operations'] = FALSE;
 
 /**
- * Theme debugging:
- *
- * When debugging is enabled:
- * - The markup of each template is surrounded by HTML comments that contain
- *   theming information, such as template file name suggestions.
- * - Note that this debugging markup will cause automated tests that directly
- *   check rendered HTML to fail.
- *
- * For more information about debugging theme templates, see
- * https://www.drupal.org/node/223440#theme-debug.
- *
- * Not recommended in production environments.
- *
- * Remove the leading hash sign to enable.
- */
-# $conf['theme_debug'] = TRUE;
-
-/**
- * CSS identifier double underscores allowance:
- *
- * To allow CSS identifiers to contain double underscores (.example__selector)
- * for Drupal's BEM-style naming standards, uncomment the line below.
- * Note that if you change this value in existing sites, existing page styles
- * may be broken.
- *
- * @see drupal_clean_css_identifier()
- */
-# $conf['allow_css_double_underscores'] = TRUE;
-/**
  * Smart start:
  *
  * If you would prefer to be redirected to the installation system when a
@@ -666,3 +637,34 @@ $conf['404_fast_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN"
  * @see drupal_clean_css_identifier()
  */
 # $conf['allow_css_double_underscores'] = TRUE;
+
+// All Pantheon Environments.
+if (defined('PANTHEON_ENVIRONMENT')) {
+
+  // Extract Pantheon environmental configuration for Domain Access
+  extract(json_decode($_SERVER['PRESSFLOW_SETTINGS'], TRUE));
+}
+
+// Redirect to HTTPS on Patheon.
+// Instructions from https://pantheon.io/docs/http-to-https/
+if (isset($_ENV['PANTHEON_ENVIRONMENT']) && php_sapi_name() != 'cli') {
+  // Redirect to HTTPS on every Pantheon environment.
+  $primary_domain = $_SERVER['HTTP_HOST'];
+  if ($_SERVER['HTTP_HOST'] != $primary_domain
+    || !isset($_SERVER['HTTP_USER_AGENT_HTTPS'])
+    || $_SERVER['HTTP_USER_AGENT_HTTPS'] != 'ON' ) {
+
+    # Name transaction "redirect" in New Relic for improved reporting (optional)
+    if (extension_loaded('newrelic')) {
+      newrelic_name_transaction("redirect");
+    }
+
+    header('HTTP/1.0 301 Moved Permanently');
+    header('Location: https://'. $primary_domain . $_SERVER['REQUEST_URI']);
+    exit();
+  }
+}
+
+if (file_exists(DRUPAL_ROOT . '/' . conf_path() . '/settings.local.php')) {
+  include DRUPAL_ROOT . '/' . conf_path() . '/settings.local.php';
+}
