@@ -5,11 +5,19 @@
  * The primary PHP file for this theme.
  */
 function mukurtu_preprocess_html(&$variables) {
-    $color_scheme = theme_get_setting('mukurtu_theme_color_scheme');
-    $css = join('/', array(path_to_theme(), 'css', "style-{$color_scheme}.css"));
-    if (file_exists($css)) {
-        drupal_add_css($css, array('group' => CSS_THEME, 'every_page' => TRUE));
-    }
+  $color_scheme = theme_get_setting('mukurtu_theme_color_scheme');
+
+  // This option was added for users who wanted to sub-theme with completely recompiled less
+  // files.
+  if ($color_scheme == 'none') {
+    return;
+  }
+
+  // Add the css for the particular color scheme.
+  $css = join('/', array(path_to_theme(), 'css', "style-{$color_scheme}.css"));
+  if (file_exists($css)) {
+    drupal_add_css($css, array('group' => CSS_THEME, 'every_page' => TRUE));
+  }
 }
 
 /**
@@ -31,6 +39,7 @@ function mukurtu_preprocess_page(&$vars, $hook = null){
     if (isset($vars['node'])) {
         switch ($vars['node']->type) {
         case 'collection':
+        case 'personal_collection':
             $js = join('/', array(drupal_get_path('theme', 'mukurtu'), 'js', 'collection-grid.js'));
             drupal_add_js($js);
             break;
@@ -84,7 +93,7 @@ function mukurtu_preprocess_field(&$variables, $hook) {
 function mukurtu_block_view_alter(&$data, $block) {
     // Rather than mess with block display, we configure all pre-packaged frontpage
     // blocks to display and hide the ones not selected in the theme settings.
-    $frontpage_hero_setting = theme_get_setting('mukurtu_theme_frontpage_layout', 'mukurtu');
+    $frontpage_hero_setting = theme_get_setting('mukurtu_theme_frontpage_layout');
 
     if(isset($block->bid)) {
         switch($block->bid) {
