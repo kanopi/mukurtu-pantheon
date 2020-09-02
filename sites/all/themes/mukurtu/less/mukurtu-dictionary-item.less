@@ -41,7 +41,7 @@
 
     .field-name-field-alternate-spelling {
         background-color: @brand-primary;
-        color: @mukurtu-default-container-font-color;
+        color: @mukurtu-dictionary-term-title-full-color;
         margin-bottom: 30px;
         padding: 5px 5px 5px 20px;
 
@@ -97,6 +97,18 @@
         // Desktop
         @media (min-width: @screen-md-min) {
             font-size: 18px;
+        }
+    }
+}
+
+
+.node-dictionary-word.view-mode-full {
+    // Left column and botttom only
+    .col-sm-8, .col-sm-12 {
+        .field {
+            .label-above {
+                .metadata-primary-field-label;
+            }
         }
     }
 }

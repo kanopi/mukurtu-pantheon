@@ -1,3 +1,60 @@
+## Mukurtu 2.1.4
+- Updated to Drupal 7.70
+- Added a media export page
+- Fixed a bug where in some cases when exporting only media, the binary file would not export
+- The recent content list in the dashboard now includes edit links
+- Fixed a bug where exports may result in an empty zip file on some systems
+- Made the "tags" field name consistent across all media types
+- Mukurtu admins can now administer content warnings
+- Fixed some color inconsistencies on the red & bone color scheme
+- Improved the display of the small hero image with welcome message
+
+#### Manual Upgrade Steps
+- database update: `drush updb`
+- revert features: `drush fr ma_scald`
+
+## Mukurtu 2.1.3
+- Content type specific related fields (e.g., “Related Digital Heritage Items”) have been generalized and consolidated into a single “Related Content” field
+- The [TK Clan](https://localcontexts.org/tk/cl/1.0) label has been added
+- Default image style resolution has been doubled for the most common image styles
+- Fixed permission issue that could cause CSV exports to fail for some user roles
+- Switched default browse sort to search relevance
+- The Original Date field will no longer auto-fill the current date during import
+- Created a custom HTTP 403 error page
+- The link to add users to a community now works correctly on sites installed as a sub-folder
+- Theme management links now link to the correct sub-theme
+- Related items featuring audio will now correctly use the HTML 5 player on the digital heritage item page
+- Fixed some minor theme inconsistencies
+- Reduced the number of common repeated PHP notices and warnings in the watchdog log
+- Updated to Drupal 7.69
+- Updated contrib modules
+
+#### Manual Upgrade Steps
+- database update: `drush updb`
+- revert features: `drush fra`
+
+## Mukurtu 2.1.2
+- Fixed a bug that caused the import of some audio/video files to fail
+- Adjusted the default Mukurtu theme to make sub-theming easier
+- Security: Update to Drupal 7.67
+
+#### Manual Upgrade Steps
+- database update: `drush updb`
+
+## Mukurtu 2.1.1
+- Fixed bug that caused some sites to not be able to create sub-collections
+- During import, original date fields will no longer default to the current date if left empty
+- Fixed a bug where for some upgraded sites the original date field was preventing search from indexing completely
+- Scald atoms in drag and drop fields are now exported more reliably
+- Resolved an issue where language stewards could not edit dictionary words in their language community
+- Added trim tamper by default to identifier fields in Mukurtu importers
+- Fixed an issue importing YouTube videos with new Mukurtu importers
+- Security updates, including contrib modules and Drupal 7.66
+
+#### Manual Upgrade Steps
+- database update: `drush updb`
+- update the search index: `drush sapi-r && drush sapi-i`
+
 ## Mukurtu 2.1.0
 - A new, responsive default theme has been added
 - Collections can now have nested sub-collections
