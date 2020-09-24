@@ -9,12 +9,6 @@ core = 7.x
 ; Custom logo and favicon stored in private filesystem if it is the default.
 projects[drupal][patch][] = https://www.drupal.org/files/issues/1087250.logo-public-filesystem.057.patch
 
-; Ignore files dir contents but include files dir itself.
-projects[drupal][patch][] = core/ignore_files_dir_contents_but_include_files_dir_itself.patch
-
-; Mukurtu custom default.settings.php.
-projects[drupal][patch][] = core/mukurtu_custom_default_settings_file.patch
-
 ; Multipatch combination of 3 separate custom patches from before this was cleaned up in drush patchfile:
 ; 1150608_use_comma_for_tax_delimiter_and_allow_quotes.patch
 ; 109315810-Change-delimiter-from-comma-to-semi-colon.patch

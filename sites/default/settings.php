@@ -479,23 +479,6 @@ ini_set('session.cookie_lifetime', 2000000);
 # $conf['block_cache_bypass_node_grants'] = TRUE;
 
 /**
- * Expiration of cache_form entries:
- *
- * Drupal's Form API stores details of forms in cache_form and these entries are
- * kept for at least 6 hours by default. Expired entries are cleared by cron.
- * Busy sites can encounter problems with the cache_form table becoming very
- * large. It's possible to mitigate this by setting a shorter expiration for
- * cached forms. In some cases it may be desirable to set a longer cache
- * expiration, for example to prolong cache_form entries for Ajax forms in
- * cached HTML.
- *
- * @see form_set_cache()
- * @see system_cron()
- * @see ajax_get_form()
- */
-# $conf['form_cache_expiration'] = 21600;
-
-/**
  * String overrides:
  *
  * To override specific strings on your site with or without enabling the Locale
@@ -655,16 +638,33 @@ $conf['404_fast_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN"
  */
 # $conf['allow_css_double_underscores'] = TRUE;
 
-/**
- * The default list of directories that will be ignored by Drupal's file API.
- *
- * By default ignore node_modules and bower_components folders to avoid issues
- * with common frontend tools and recursive scanning of directories looking for
- * extensions.
- *
- * @see file_scan_directory()
- */
-$conf['file_scan_ignore_directories'] = array(
-  'node_modules',
-  'bower_components',
-);
+// All Pantheon Environments.
+if (defined('PANTHEON_ENVIRONMENT')) {
+
+  // Extract Pantheon environmental configuration for Domain Access
+  extract(json_decode($_SERVER['PRESSFLOW_SETTINGS'], TRUE));
+}
+
+// Redirect to HTTPS on Patheon.
+// Instructions from https://pantheon.io/docs/http-to-https/
+if (isset($_ENV['PANTHEON_ENVIRONMENT']) && php_sapi_name() != 'cli') {
+  // Redirect to HTTPS on every Pantheon environment.
+  $primary_domain = $_SERVER['HTTP_HOST'];
+  if ($_SERVER['HTTP_HOST'] != $primary_domain
+    || !isset($_SERVER['HTTP_USER_AGENT_HTTPS'])
+    || $_SERVER['HTTP_USER_AGENT_HTTPS'] != 'ON' ) {
+
+    # Name transaction "redirect" in New Relic for improved reporting (optional)
+    if (extension_loaded('newrelic')) {
+      newrelic_name_transaction("redirect");
+    }
+
+    header('HTTP/1.0 301 Moved Permanently');
+    header('Location: https://'. $primary_domain . $_SERVER['REQUEST_URI']);
+    exit();
+  }
+}
+
+if (file_exists(DRUPAL_ROOT . '/' . conf_path() . '/settings.local.php')) {
+  include DRUPAL_ROOT . '/' . conf_path() . '/settings.local.php';
+}

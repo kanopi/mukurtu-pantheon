@@ -29,6 +29,8 @@ function mukurtu_install_tasks($install_state) {
 //      'display_name' => st('Setup Client'),
 //      'type' => 'form',
 //    ),
+    'mukurtu_pantheon_configs' => array(), // Mukurtu-Pantheon sites only
+
   );
   return $tasks;
 }
@@ -98,6 +100,11 @@ function mukurtu_revert_features () {
   drupal_get_messages();
   features_revert(); // Revert all features a second time, for any straggling components
   drupal_get_messages();
+}
+
+// Mukurtu-Pantheon sites only
+function mukurtu_pantheon_configs() {
+  module_enable(array('pantheon_api'));
 }
 
 function mukurtu_rebuild_permissions () {
